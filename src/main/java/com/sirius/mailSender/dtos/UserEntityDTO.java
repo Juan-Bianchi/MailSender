@@ -1,9 +1,12 @@
 package com.sirius.mailSender.dtos;
 
 import com.sirius.mailSender.models.Mail;
+import com.sirius.mailSender.models.Role;
 import com.sirius.mailSender.models.UserEntity;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class UserEntityDTO {
 
@@ -12,6 +15,7 @@ public class UserEntityDTO {
     private String userName;
     private Set<Mail> mails;
     private Integer sentEmails;
+    private List<RoleDTO> roles;
 
     public UserEntityDTO(UserEntity userEntity) {
         this.id = userEntity.getId();
@@ -19,6 +23,7 @@ public class UserEntityDTO {
         this.userName = userEntity.getUserName();
         this.mails = userEntity.getMails();
         this.sentEmails = userEntity.getSentEmails();
+        this.roles = userEntity.getRoles().stream().map(RoleDTO::new).collect(Collectors.toList());
     }
 
     public Integer getId() {
@@ -39,5 +44,9 @@ public class UserEntityDTO {
 
     public Integer getSentEmails() {
         return sentEmails;
+    }
+
+    public List<RoleDTO> getRoles() {
+        return roles;
     }
 }

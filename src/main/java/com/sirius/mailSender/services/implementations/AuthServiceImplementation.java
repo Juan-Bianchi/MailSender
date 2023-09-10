@@ -1,59 +1,77 @@
 package com.sirius.mailSender.services.implementations;
 
-import com.sirius.mailSender.dtos.UserEntityDTO;
+import com.sirius.mailSender.dtos.LoginDTO;
+import com.sirius.mailSender.dtos.RegisterDTO;
+import com.sirius.mailSender.models.Role;
 import com.sirius.mailSender.models.UserEntity;
+import com.sirius.mailSender.repositories.RoleRepository;
 import com.sirius.mailSender.repositories.UserEntityRepository;
-import com.sirius.mailSender.repositories.MailRepository;
-import com.sirius.mailSender.services.UserEntityService;
+import com.sirius.mailSender.security.JWTGenerator;
+import com.sirius.mailSender.services.AuthService;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
-public class UserEntityServiceImplementation implements UserEntityService {
+public class AuthServiceImplementation implements AuthService {
 
+    private final AuthenticationManager authenticationManager;
     private final UserEntityRepository userEntityRepository;
-    private final MailRepository mailRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JWTGenerator jwtGenerator;
 
-    public UserEntityServiceImplementation(UserEntityRepository userEntityRepository, MailRepository mailRepository) {
+    public AuthServiceImplementation(AuthenticationManager authenticationManager, UserEntityRepository userEntityRepository,
+                          RoleRepository roleRepository, PasswordEncoder passwordEncoder, JWTGenerator jwtGenerator) {
+        this.authenticationManager = authenticationManager;
         this.userEntityRepository = userEntityRepository;
-        this.mailRepository = mailRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtGenerator = jwtGenerator;
     }
 
-    @Override
-    public Set<UserEntityDTO> findAll() {
-        return userEntityRepository.findAll().stream().map(UserEntityDTO::new).collect(Collectors.toSet());
-    }
 
     @Override
-    public void register(String email, String userName, String password) {
-        if(thereIsANullField(email, userName, password)) {
-            throw new RuntimeException(verifyNullFields(email, userName, password));
+    public void register(RegisterDTO registerDTO) {
+        if(thereIsANullField(registerDTO.getUserName(), registerDTO.getEmail(), registerDTO.getPassword())) {
+            throw new RuntimeException(verifyNullFields(registerDTO.getUserName(), registerDTO.getEmail(), registerDTO.getPassword()));
         }
-        if( !emailIsCorrect(email) ) {
+        if( !emailIsCorrect(registerDTO.getEmail()) ) {
             throw new RuntimeException("The email given is not correct. Please, provide a different one");
         }
-        if( !isValidPassword(password) ) {
+        if( !isValidPassword(registerDTO.getPassword()) ) {
             throw new RuntimeException("Password requires 1 uppercase, 1 lowercase, 1 digit, 1 special character, min. 8 characters.");
         }
-        if (this.findUserEntityByUserName(email) !=  null) {
-            throw new RuntimeException("Email is already in use. Register with another email.");
+        if (this.userEntityRepository.existsByUserName(registerDTO.getUserName())) {
+            throw new RuntimeException("User is already in use. Register with another user name.");
         }
 
-        this.userEntityRepository.save(new UserEntity(email, userName, password));
+        UserEntity user = new UserEntity(registerDTO.getEmail(), registerDTO.getUserName(), passwordEncoder.encode(registerDTO.getPassword()));
+
+        Role roles = registerDTO.getEmail().contains("admin") && registerDTO.getUserName().contains("admin")
+                ? roleRepository.findByName("ADMIN").get()
+                : roleRepository.findByName("USER").get();
+        user.setRoles(Collections.singletonList(roles));
+
+        this.userEntityRepository.save(user);
     }
 
     @Override
-    public UserEntity findUserEntityByUserName(String email) {
-        return userEntityRepository.findByUserName(email).orElse(null);
-    }
+    public String login(LoginDTO loginDTO) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginDTO.getUserName(), loginDTO.getPassword())
+        );
 
-    @Override
-    public Boolean existsByUserName(String userName) {
-        return userEntityRepository.existsByUserName(userName);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return jwtGenerator.generateToken(authentication);
     }
 
 
@@ -68,7 +86,7 @@ public class UserEntityServiceImplementation implements UserEntityService {
         boolean moreThanOne = false;
 
         if (userName.isEmpty()){
-            stringBuilder.append("first name");
+            stringBuilder.append("user name");
             moreThanOne = true;
         }
         if (email.isEmpty()){

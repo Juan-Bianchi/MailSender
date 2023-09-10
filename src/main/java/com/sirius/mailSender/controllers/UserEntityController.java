@@ -17,21 +17,21 @@ public class UserEntityController {
     private final UserEntityService userEntityService;
     private final MailService mailService;
 
-    public UserEntityController(UserEntityService userEntityService, @Lazy MailService mailService) {
+    public UserEntityController(UserEntityService userEntityService, MailService mailService) {
         this.userEntityService = userEntityService;
         this.mailService = mailService;
     }
 
-    @GetMapping("/mailOwners")
+    @GetMapping("/userEntities")
     public Set<UserEntityDTO> getMailOwners(){
         return this.userEntityService.findAll();
     }
 
-    @PostMapping("/mailOwners")
-    public ResponseEntity<Object> register (@RequestParam String email, @RequestParam String firstName,
-                                                  @RequestParam String lastName, @RequestParam String password) {
+    @PostMapping("/userEntities")
+    public ResponseEntity<Object> register (@RequestParam String email, @RequestParam String userName,
+                                            @RequestParam String password) {
         try {
-            userEntityService.register(email, firstName, lastName, password);
+            userEntityService.register(email, userName, password);
             return new ResponseEntity<>("Registered", HttpStatus.CREATED);
         }
         catch (RuntimeException e) {

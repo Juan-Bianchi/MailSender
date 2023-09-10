@@ -12,8 +12,7 @@ import java.util.Set;
 public class UserEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
-    @GenericGenerator(name = "native", strategy = "native")
+    @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "native")
     private Integer id;
     private String email;
     private String userName;
@@ -80,6 +79,10 @@ public class UserEntity {
 
     public void setSentEmails(Integer sentEmails) {
         this.sentEmails = sentEmails;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
     }
 
     public void addAnEMail(Mail mail) {
