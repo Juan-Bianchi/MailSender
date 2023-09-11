@@ -1,7 +1,6 @@
 package com.sirius.mailSender.dtos;
 
 import com.sirius.mailSender.models.Mail;
-import com.sirius.mailSender.models.Role;
 import com.sirius.mailSender.models.UserEntity;
 
 import java.util.List;

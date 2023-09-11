@@ -1,7 +1,5 @@
 package com.sirius.mailSender.models;
 
-import org.hibernate.annotations.GenericGenerator;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,6 +29,7 @@ public class UserEntity {
         this.email = email;
         this.userName = userName;
         this.password = password;
+        this.sentEmails = 0;
     }
 
     public Integer getId() {

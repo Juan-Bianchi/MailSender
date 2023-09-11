@@ -28,8 +28,7 @@ public class Mail {
 
     public Mail() {}
 
-    public Mail(UserEntity sender, String subject, String message, List<String> recipients, LocalDateTime date, List<String> cc, List<String> bcc) {
-        this.sender = sender;
+    public Mail(String subject, String message, List<String> recipients, LocalDateTime date, List<String> cc, List<String> bcc) {
         this.subject = subject;
         this.message = message;
         this.recipients = recipients;
