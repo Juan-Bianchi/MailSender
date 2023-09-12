@@ -1,5 +1,6 @@
 package com.sirius.mailSender.services.implementations;
 
+import com.sirius.mailSender.dtos.UserEntityDTO;
 import com.sirius.mailSender.models.UserEntity;
 import com.sirius.mailSender.repositories.UserEntityRepository;
 import com.sirius.mailSender.repositories.MailRepository;
@@ -23,8 +24,8 @@ public class UserEntityServiceImplementation implements UserEntityService {
     }
 
     @Override
-    public Set<com.sirius.mailSender.dtos.UserEntityDTO> findAll() {
-        return userEntityRepository.findAll().stream().map(com.sirius.mailSender.dtos.UserEntityDTO::new).collect(Collectors.toSet());
+    public Set<UserEntityDTO> findAll() {
+        return userEntityRepository.findAll().stream().map(UserEntityDTO::new).collect(Collectors.toSet());
     }
 
     @Override

@@ -30,22 +30,21 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity.csrf().disable()
-                .exceptionHandling()
-                .authenticationEntryPoint(jwtAuthEntryPoint)
-                .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .antMatchers(HttpMethod.GET, "/api/userEntities").permitAll()
+                        .antMatchers(HttpMethod.GET, "/api/userEntities").hasAuthority("ADMIN")
                         .antMatchers(HttpMethod.POST, "/api/mails").permitAll()
                         .antMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                         .antMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .httpBasic();
+                .exceptionHandling()
+                .authenticationEntryPoint(jwtAuthEntryPoint)
+                .and()
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         //disabling frameOptions so h2-console can be accessed
         httpSecurity.headers().frameOptions().disable();

@@ -30,7 +30,7 @@ public class JWTGenerator {
 
     public String getUserFromJWT(String token) {
         Claims claims = Jwts.parser().setSigningKey(SecurityConstants.JWT_SECRET)
-                .parseClaimsJwt(token)
+                .parseClaimsJws(token)
                 .getBody();
 
         return claims.getSubject();
@@ -38,7 +38,7 @@ public class JWTGenerator {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(SecurityConstants.JWT_SECRET).parseClaimsJwt(token);
+            Jwts.parser().setSigningKey(SecurityConstants.JWT_SECRET).parseClaimsJws(token);
             return true;
         }
         catch (Exception e){

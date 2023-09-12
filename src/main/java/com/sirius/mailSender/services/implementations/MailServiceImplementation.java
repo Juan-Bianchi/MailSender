@@ -1,19 +1,18 @@
 package com.sirius.mailSender.services.implementations;
 
+import com.mailjet.client.ClientOptions;
 import com.sirius.mailSender.dtos.MailSentDTO;
-import com.sirius.mailSender.dtos.UserEntityDTO;
-import com.sirius.mailSender.models.Mail;
+import com.sirius.mailSender.mailProviders.classes.MailJetProvider;
+import com.sirius.mailSender.mailProviders.classes.SendGridProvider;
+import com.sirius.mailSender.models.MailEntity;
 import com.sirius.mailSender.models.UserEntity;
 import com.sirius.mailSender.repositories.MailRepository;
 import com.sirius.mailSender.repositories.UserEntityRepository;
 import com.sirius.mailSender.services.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,13 +22,11 @@ public class MailServiceImplementation implements MailService {
 
     private final MailRepository mailRepository;
     private final UserEntityRepository userEntityRepository;
-    private final JavaMailSender mailSender;
 
     @Autowired
-    public MailServiceImplementation (MailRepository mailRepository, UserEntityRepository userEntityRepository, JavaMailSender mailSender) {
+    public MailServiceImplementation (MailRepository mailRepository, UserEntityRepository userEntityRepository) {
         this.userEntityRepository = userEntityRepository;
         this.mailRepository = mailRepository;
-        this.mailSender = mailSender;
     }
 
     @Override
@@ -52,20 +49,18 @@ public class MailServiceImplementation implements MailService {
         if (user == null) {
             throw new RuntimeException("User does not exists.");
         }
-        int totalMails = mailSentDTO.getBcc().size() + mailSentDTO.getCc().size() + mailSentDTO.getRecipients().size() + user.getSentEmails();
+        int totalMails = mailSentDTO.getRecipients().size() + user.getSentEmails();
         if(totalMails > 1000) {
             throw new RuntimeException("This user has already reached the 1000 daily messages limit.");
         }
 
-        MimeMessage message = createMessage(mailSentDTO);
-        Mail mail = new Mail(mailSentDTO.getSubject(), mailSentDTO.getMessage(), mailSentDTO.getRecipients(),
-                             LocalDateTime.now(), mailSentDTO.getCc(), mailSentDTO.getBcc());
+        MailEntity mailEntity = new MailEntity(mailSentDTO.getSubject(), mailSentDTO.getMessage(), mailSentDTO.getRecipients(), LocalDateTime.now());
 
-        user.addAnEMail(mail);
-        mailSender.send(message);
+        user.addAnEMail(mailEntity);
+        doSendMail(mailEntity);
         user.setSentEmails(totalMails);
         userEntityRepository.save(user);
-        mailRepository.save(mail);
+        mailRepository.save(mailEntity);
     }
 
 
@@ -109,26 +104,19 @@ public class MailServiceImplementation implements MailService {
         return stringBuilder.toString();
     }
 
-    private MimeMessage createMessage (MailSentDTO mailSentDTO) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(message, true);
+    private void doSendMail(MailEntity mailEntity){
+        ClientOptions options = ClientOptions.builder()
+                .apiKey(System.getenv("API_KEY_PUBLIC_MAILJET"))
+                .apiSecretKey(System.getenv("API_KEY_PRIVATE_MAILJET"))
+                .build();
 
-        mimeMessageHelper.setSubject(mailSentDTO.getSubject());
-        mimeMessageHelper.setText(mailSentDTO.getMessage(), true); // configures content as HTMLif necessary
-
-        // sender
-        mimeMessageHelper.setFrom(mailSentDTO.getSender());
-        // recipients
-        mimeMessageHelper.setTo(mailSentDTO.getRecipients().toArray(new String[0]));
-        // CC
-        if (mailSentDTO.getCc() != null && !mailSentDTO.getCc().isEmpty()) {
-            mimeMessageHelper.setCc(mailSentDTO.getCc().toArray(new String[0]));
-        }
-        // CCO
-        if (mailSentDTO.getBcc() != null && !(mailSentDTO.getBcc().isEmpty())) {
-            mimeMessageHelper.setBcc(mailSentDTO.getBcc().toArray(new String[0]));
+        MailJetProvider client = new MailJetProvider(options);
+        //boolean mailJetHasSentTheMail = client.sendMail(mailEntity);
+        if(true) {
+            SendGridProvider sendGridProvider = new SendGridProvider();
+            sendGridProvider.sendMail(mailEntity);
         }
 
-        return message;
     }
+
 }

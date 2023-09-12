@@ -1,6 +1,6 @@
 package com.sirius.mailSender.dtos;
 
-import com.sirius.mailSender.models.Mail;
+import com.sirius.mailSender.models.MailEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,16 +12,12 @@ public class MailSentDTO {
     private String message;
     private List<String> recipients;
     private LocalDateTime date;
-    private List<String> cc;
-    private List<String> bcc;
 
-    public MailSentDTO(Mail mail) {
-        this.sender = mail.getSender().getUserName();
-        this.subject = mail.getSubject();
-        this.message = mail.getMessage();
-        this.recipients = mail.getRecipients();
-        this.cc = mail.getCc();
-        this.bcc = mail.getBcc();
+    public MailSentDTO(MailEntity mailEntity) {
+        this.sender = mailEntity.getSender().getUserName();
+        this.subject = mailEntity.getSubject();
+        this.message = mailEntity.getMessage();
+        this.recipients = mailEntity.getRecipients();
     }
 
     public MailSentDTO(String sender, String subject, String message, List<String> recipients, List<String> cc, List<String> bcc) {
@@ -29,8 +25,6 @@ public class MailSentDTO {
         this.subject = subject;
         this.message = message;
         this.recipients = recipients;
-        this.cc = cc;
-        this.bcc = bcc;
     }
 
 
@@ -50,11 +44,4 @@ public class MailSentDTO {
         return recipients;
     }
 
-    public List<String> getCc() {
-        return cc;
-    }
-
-    public List<String> getBcc() {
-        return bcc;
-    }
 }

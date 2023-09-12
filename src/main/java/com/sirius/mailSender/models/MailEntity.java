@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class Mail {
+public class MailEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
@@ -21,20 +21,15 @@ public class Mail {
     @ElementCollection
     private List<String> recipients = new ArrayList<>();
     private LocalDateTime date;
-    @ElementCollection
-    private List<String> cc = new ArrayList<>();
-    @ElementCollection
-    private List<String> bcc = new ArrayList<>();
 
-    public Mail() {}
 
-    public Mail(String subject, String message, List<String> recipients, LocalDateTime date, List<String> cc, List<String> bcc) {
+    public MailEntity() {}
+
+    public MailEntity(String subject, String message, List<String> recipients, LocalDateTime date) {
         this.subject = subject;
         this.message = message;
         this.recipients = recipients;
         this.date = date;
-        this.cc = cc;
-        this.bcc = bcc;
     }
 
     public Integer getId() {
@@ -61,14 +56,6 @@ public class Mail {
         return date;
     }
 
-    public List<String> getCc() {
-        return cc;
-    }
-
-    public List<String> getBcc() {
-        return bcc;
-    }
-
     public void setSender(UserEntity sender) {
         this.sender = sender;
     }
@@ -89,11 +76,4 @@ public class Mail {
         this.date = date;
     }
 
-    public void setCc(List<String> cc) {
-        this.cc = cc;
-    }
-
-    public void setBcc(List<String> bcc) {
-        this.bcc = bcc;
-    }
 }

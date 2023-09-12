@@ -25,6 +25,8 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.14.2'
 	implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+	implementation group: 'com.mailjet', name: 'mailjet-client', version: '5.2.4'
+	implementation group: 'com.sendgrid', name: 'sendgrid-java', version: '4.9.3'
 }
 
 tasks.named('test') {
