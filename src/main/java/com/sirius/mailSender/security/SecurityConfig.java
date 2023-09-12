@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -29,22 +30,21 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity.csrf().disable()
-                .exceptionHandling()
-                .authenticationEntryPoint(jwtAuthEntryPoint)
-                .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
-                .antMatchers("/h2-console/**").permitAll()
-
-                .anyRequest().authenticated()
+                .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                        .antMatchers(HttpMethod.GET, "/api/userEntities").hasAuthority("ADMIN")
+                        .antMatchers(HttpMethod.POST, "/api/mails").permitAll()
+                        .antMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+                        .antMatchers("/h2-console/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .exceptionHandling()
+                .authenticationEntryPoint(jwtAuthEntryPoint)
                 .and()
-                .httpBasic();
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         //disabling frameOptions so h2-console can be accessed
         httpSecurity.headers().frameOptions().disable();

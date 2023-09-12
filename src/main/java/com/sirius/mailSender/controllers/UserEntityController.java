@@ -6,6 +6,7 @@ import com.sirius.mailSender.services.MailService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -38,6 +39,7 @@ public class UserEntityController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         }
     }
+
 
 
 }

@@ -1,7 +1,5 @@
 package com.sirius.mailSender.models;
 
-import org.hibernate.annotations.GenericGenerator;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -18,7 +16,7 @@ public class UserEntity {
     private String userName;
     private String password;
     @OneToMany(mappedBy = "sender", fetch = FetchType.EAGER)
-    private Set<Mail> mails = new HashSet<>();
+    private Set<MailEntity> mailEntities = new HashSet<>();
     private Integer sentEmails;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
@@ -31,6 +29,7 @@ public class UserEntity {
         this.email = email;
         this.userName = userName;
         this.password = password;
+        this.sentEmails = 0;
     }
 
     public Integer getId() {
@@ -49,8 +48,8 @@ public class UserEntity {
         return password;
     }
 
-    public Set<Mail> getMails() {
-        return mails;
+    public Set<MailEntity> getMails() {
+        return mailEntities;
     }
 
     public Integer getSentEmails() {
@@ -73,8 +72,8 @@ public class UserEntity {
         this.password = password;
     }
 
-    public void setMails(Set<Mail> mails) {
-        this.mails = mails;
+    public void setMails(Set<MailEntity> mailEntities) {
+        this.mailEntities = mailEntities;
     }
 
     public void setSentEmails(Integer sentEmails) {
@@ -85,8 +84,8 @@ public class UserEntity {
         this.roles = roles;
     }
 
-    public void addAnEMail(Mail mail) {
-        this.mails.add(mail);
-        mail.setSender(this);
+    public void addAnEMail(MailEntity mailEntity) {
+        this.mailEntities.add(mailEntity);
+        mailEntity.setSender(this);
     }
 }

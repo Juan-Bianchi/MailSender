@@ -1,7 +1,7 @@
 package com.sirius.mailSender.security;
 
-import org.apache.catalina.UserDatabase;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,7 +32,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             String userName = jwtGenerator.getUserFromJWT(token);
             UserDetails userDetails = customUserDetailService.loadUserByUsername(userName);
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    userDetails, userDetails.getAuthorities());
+                    userDetails,null, userDetails.getAuthorities());
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
@@ -41,8 +41,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String getJWTFromRequest(HttpServletRequest request ) {
-        String bearerToken = request.getHeader("Authorization");
-        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
+        String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7, bearerToken.length());
         }
         return null;
