@@ -12,7 +12,6 @@ import com.sirius.mailSender.services.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,7 +40,7 @@ public class MailServiceImplementation implements MailService {
 
     @Transactional
     @Override
-    public void sendMail(MailSentDTO mailSentDTO) throws MessagingException {
+    public void sendMail(MailSentDTO mailSentDTO) {
         if(thereIsANullField(mailSentDTO.getSubject(), mailSentDTO.getMessage(), mailSentDTO.getSender(), mailSentDTO.getRecipients())) {
             throw new RuntimeException(verifyNullFields(mailSentDTO.getSubject(), mailSentDTO.getMessage(), mailSentDTO.getSender(), mailSentDTO.getRecipients()));
         }
@@ -111,10 +110,13 @@ public class MailServiceImplementation implements MailService {
                 .build();
 
         MailJetProvider client = new MailJetProvider(options);
-        //boolean mailJetHasSentTheMail = client.sendMail(mailEntity);
-        if(true) {
+        boolean mailJetHasSentTheMail = client.sendMail(mailEntity);
+        if(!mailJetHasSentTheMail) {
             SendGridProvider sendGridProvider = new SendGridProvider();
-            sendGridProvider.sendMail(mailEntity);
+            boolean sendGridHasSentTheMail = sendGridProvider.sendMail(mailEntity);
+            if(!sendGridHasSentTheMail){
+                throw new RuntimeException("The mail could not be sent.");
+            }
         }
 
     }

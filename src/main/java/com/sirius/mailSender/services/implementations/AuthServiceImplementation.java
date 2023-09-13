@@ -55,7 +55,7 @@ public class AuthServiceImplementation implements AuthService {
 
         UserEntity user = new UserEntity(registerDTO.getEmail(), registerDTO.getUserName(), passwordEncoder.encode(registerDTO.getPassword()));
 
-        Role roles = registerDTO.getEmail().contains("admin") && registerDTO.getUserName().contains("admin")
+        Role roles = registerDTO.getUserName().contains("admin")
                 ? roleRepository.findByName("ADMIN").get()
                 : roleRepository.findByName("USER").get();
         user.setRoles(Collections.singletonList(roles));
