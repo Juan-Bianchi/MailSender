@@ -1,7 +1,5 @@
 package com.sirius.mailSender.models;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-
 import javax.persistence.*;
 
 @Entity

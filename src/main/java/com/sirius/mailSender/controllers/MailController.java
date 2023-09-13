@@ -16,7 +16,7 @@ public class MailController {
         this.mailService = mailService;
     }
 
-    @PostMapping("/mails")
+    @PostMapping("/mails/send")
     public ResponseEntity<Object> sendMail (@RequestBody MailSentDTO mailSentDTO) {
         try {
             mailService.sendMail(mailSentDTO);

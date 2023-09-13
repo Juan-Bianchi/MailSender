@@ -34,10 +34,10 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .antMatchers(HttpMethod.GET, "/api/userEntities").hasAuthority("ADMIN")
-                        .antMatchers(HttpMethod.POST, "/api/mails").permitAll()
                         .antMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                         .antMatchers("/h2-console/**").permitAll()
+                        .antMatchers(HttpMethod.GET, "/api/userEntities").hasAuthority("ADMIN")
+                        .antMatchers(HttpMethod.POST, "/api/mails/send").hasAnyAuthority("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling()

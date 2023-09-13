@@ -1,7 +1,5 @@
 package com.sirius.mailSender.dtos;
 
-import javax.persistence.Entity;
-
 public class RegisterDTO {
 
     private String userName;
